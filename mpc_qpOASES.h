@@ -94,15 +94,15 @@ public:
         {
             g[i] = gradient(i);
             if(i % 2 == 0){
-                lb[i] = v_min_ - U_r[0](0);
-                ub[i] = v_max_ - U_r[0](0);
+                lb[i] = v_min_ - U_r[i](0);
+                ub[i] = v_max_ - U_r[i](0);
                 if(i<2*(N_-1)){
                     lbA[i] = -delta_v_ + U_r[i](0) - U_r[i + 1](0);
                     ubA[i] = delta_v_ + U_r[i](0) - U_r[i + 1](0);
                 }
             } else {
-                lb[i] = w_min_ - U_r[0](1);
-                ub[i] = w_max_ - U_r[0](1);
+                lb[i] = w_min_ - U_r[i](1);
+                ub[i] = w_max_ - U_r[i](1);
                 if(i<2*(N_-1)){
                     lbA[i] = -delta_w_ + U_r[i](1) - U_r[i + 1](1);
                     ubA[i] = delta_w_ + U_r[i](1) - U_r[i + 1](1);
