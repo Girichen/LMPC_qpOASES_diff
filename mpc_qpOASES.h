@@ -76,17 +76,10 @@ public:
             B_bar.block<3,2>(3 * k, 2 * k) = B_r[k];//B_bar finished
         }
 
-        MatrixXd E = A_bar * X_0;
         MatrixXd Hesse = 2 * (B_bar.transpose() * Q * B_bar + R);
-        VectorXd gradient = 2 * B_bar.transpose() * Q * E;
-        Eigen::Matrix<double, 3, 1> Ac_temp;
-        MatrixXd Ac = MatrixXd::Zero(2 * N_, 2 * N_);
-        Ac_temp << -1 ,0, 1;
-        for(int i = 0;i<2*(N_-1);++i){
-            Ac.block<1,3>(i,i)=Ac_temp;
-        }
-
-        real_t H[2*N_*2*N_],g[2*N_],A[2*N_*2*N_],lb[2*N_],ub[2*N_],lbA[2*N_],ubA[2*N_];
+        VectorXd gradient = 2 * B_bar.transpose() * Q * A_bar * X_0;
+       
+        real_t H[2*N_*2*N_],g[2*N_],A[2*N_*2*N_],lb[2*N_],ub[2*N_];
         QProblem mpc_qp_solver(2 * N_, 1);
         mpc_qp_solver.setPrintLevel(PrintLevel::PL_NONE);
 
@@ -94,37 +87,25 @@ public:
         {
             g[i] = gradient(i);
             if(i % 2 == 0){
-                lb[i] = v_min_ - U_r[i](0); //in which have a bug,maybe? 
-                ub[i] = v_max_ - U_r[i](0); //in which have a bug,maybe?
-                if(i<2*(N_-1)){
-                    lbA[i] = -delta_v_ + U_r[i](0) - U_r[i + 1](0);
-                    ubA[i] = delta_v_ + U_r[i](0) - U_r[i + 1](0);
-                }
+                lb[i] = v_min_ - U_r[0](0);
+                ub[i] = v_max_ - U_r[0](0);
             } else {
-                lb[i] = w_min_ - U_r[i](1);//in which have a bug,maybe?
-                ub[i] = w_max_ - U_r[i](1);//in which have a bug,maybe?
-                if(i<2*(N_-1)){
-                    lbA[i] = -delta_w_ + U_r[i](1) - U_r[i + 1](1);
-                    ubA[i] = delta_w_ + U_r[i](1) - U_r[i + 1](1);
-                }
+                lb[i] = w_min_ - U_r[0](1);
+                ub[i] = w_max_ - U_r[0](1);
             }
-            for(int j=0;j<2*N_;j++)
+            for(int j = 0; j < 2 * N_; j++)
             {
                 H[i*2*N_+j] = Hesse(i,j);
-                A[i*2*N_+j] = Ac(i,j);
             }
         }
 
         int_t nWSR = 800;
-        mpc_qp_solver.init(H,g,A,lb,ub,lbA,ubA,nWSR);
-        real_t x_solution[2*N_];
+        mpc_qp_solver.init(H,g,A,lb,ub,nullptr,nullptr,nWSR);
+        real_t x_solution[2 * N_];
         mpc_qp_solver.getPrimalSolution(x_solution);
         Vector2d u_k;
         u_k(0) = x_solution[0];
         u_k(1) = x_solution[1];
-        //std::cout << "u_k:" << std::endl;
-        //std::cout << u_k << std::endl;
-
         clock_t end = std::clock();
         double duration = double(end - start) / CLOCKS_PER_SEC;
         //std::cout << "Program execution time: " << duration << " seconds" << std::endl;
@@ -133,14 +114,12 @@ public:
 private:
     int N_ = 10;
     double dt_ = 0.1;
-    double omega0_ = 1.0;
-    double omega1_ = 1.0;
+    double omega0_ = 0.01;
+    double omega1_ = 5.0;
     double v_min_ = -0.6;
     double v_max_ = 0.6;
-    double w_min_ = -0.3;
-    double w_max_ = 0.3;
-    double delta_v_ = 0.02;
-    double delta_w_ = 0.02;
+    double w_min_ = -0.6;
+    double w_max_ = 0.6;
 };
 
 #endif
