@@ -48,8 +48,8 @@ public:
             A_r[k] = A_r_init;
             B_r[k] = B_r_init;
 
-            A_r[k](0,2) = -U_r[k](0) * sin(X_r[k](2));
-            A_r[k](1,2) = U_r[k](0) * cos(X_r[k](2));
+            A_r[k](0,2) = -U_r[k](0) * sin(X_r[k](2)) * dt_;
+            A_r[k](1,2) = U_r[k](0) * cos(X_r[k](2)) * dt_;
 
             B_r[k](0,0) = cos(X_r[k](2)) * dt_;
             B_r[k](1,0) = sin(X_r[k](2)) * dt_;
