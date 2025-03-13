@@ -135,8 +135,6 @@ public:
 private:
     int N_ = 10;
     double dt_ = 0.1;
-    double omega0_ = 5;//0.01
-    double omega1_ = 1;//5
     double v_min_ = -0.6;
     double v_max_ = 0.6;
     double w_min_ = -0.6;
