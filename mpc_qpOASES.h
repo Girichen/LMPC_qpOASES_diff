@@ -104,6 +104,7 @@ public:
         
         MatrixXd E = A_bar*x_0+C_bar*O_r-X_ref;
         MatrixXd Hesse = 2 * (B_bar.transpose() * Q * B_bar + R);
+        Hesse = (Hesse + Hesse.transpose()) / 2.0; // Make Hesse symmetric to improve numerical stability
         VectorXd gradient = 2 * B_bar.transpose() * Q * E;
        
         real_t A[2*N_*2*N_],lb[2*N_],ub[2*N_];
